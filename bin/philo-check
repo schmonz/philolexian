@@ -1,0 +1,58 @@
+#!/bin/sh
+
+TOTAL_WARNINGS=0
+LOGINFORMHTML='<form action="https://wind.columbia.edu/login" charset="utf-8" class="fb_form" id="signin" method="post" name="signin">'
+
+philo_check_ssh_key_is_loaded() {
+	. $HOME/.keychain/$HOSTNAME-sh 2>/dev/null
+	ssh-add -l 2>/dev/null | grep -q id_rsa
+
+}
+
+philo_check_privowixian_is_not_public_readable() {
+	curl -s 'https://www1.columbia.edu/sec/cu/philo/' \
+		| grep -q pamacea
+}
+
+philo_check_privowixian_is_not_public_writable() {
+	curl -s 'http://wiki.philo.org/privowixian/wiki.cgi?page=index&do=edit' \
+		| grep -q "${LOGINFORMHTML}"
+}
+
+philo_check_philowixian_is_public_readable() {
+	curl -s 'http://www.columbia.edu/cu/philo/' \
+		| grep -q 'Recent Site Changes'
+}
+
+philo_check_philowixian_is_not_public_writable() {
+	curl -s 'http://wiki.philo.org/public/wiki.cgi?page=index&do=edit' \
+		| grep -q "${LOGINFORMHTML}"
+}
+
+warn() {
+	TOTAL_WARNINGS=`expr 1 + $TOTAL_WARNINGS`
+	echo "$@" >&2
+}
+
+main() {
+	while [ $# -gt 0 ]; do
+		case $1 in
+		key)		philo_check_ssh_key_is_loaded \
+				    || warn "SSH key isn't loaded" ;;
+		privowixian)	philo_check_privowixian_is_not_public_readable \
+				    || warn "Privowixian is public-readable";
+				philo_check_privowixian_is_not_public_writable \
+				    || warn "Privowixian is public-writable" ;;
+		philowixian)		philo_check_philowixian_is_public_readable \
+				    || warn "Philowixian is not readable";
+				philo_check_philowixian_is_not_public_writable \
+				    || warn "Philowixian is public-writable" ;;
+		*)		warn "no check implemented for '$1'" ;;
+		esac
+		shift
+	done
+	return $TOTAL_WARNINGS
+}
+
+main "$@"
+exit $?

@@ -1,0 +1,15 @@
+#!/bin/sh -e
+
+STARTTIME=`date`
+echo >&2 "Starting Philo software update"
+echo >&2
+
+cd $HOME/philo/pkgsrc-current
+git pull
+pkg_rolling-replace -suv
+
+FINISHTIME=`date`
+echo >&2 "Completed Philo software update!"
+echo >&2 "Started:  $STARTTIME"
+echo >&2 "Finished: $FINISHTIME"
+echo >&2

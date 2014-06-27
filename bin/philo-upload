@@ -1,0 +1,64 @@
+#!/bin/sh
+
+# TODO:
+# define cu_username, cu_server, cu_destpath in visible config file
+
+. ~/.keychain/`hostname`-sh
+
+check_key() {
+	message=`$HOME/philo/bin/philo-check key 2>&1` && return
+	echo $message | mail -s "Philowixian edit failed" schmonz-reports-philodreamhost@schmonz.com
+	exit 27
+}
+
+upload_philowixian() {
+	local wiki gitweb_src gitweb_dst
+
+	check_key
+
+	wiki=~/philo
+	gitweb_src=${wiki}/pkg/share/gitweb/gitweb.cgi
+	gitweb_dst=~/wiki.philo.org/public/gitweb.cgi
+
+	cmp -s ${gitweb_src} ${gitweb_dst} || \
+		cp ${gitweb_src} ${gitweb_dst}
+
+	rsync -qa --delete \
+		${wiki}/philowixian-html/ \
+		cunix.cc.columbia.edu:/www/data/cu/philo/
+}
+
+upload_privowixian() {
+	local wiki userdb_src userdb_dst htaccess_src userlist_src htaccess_dst
+
+	check_key
+
+	wiki=~/philo
+	userdb_src=${wiki}/privowixian/minister_of_internet_truth/geezers-and-other-users.txt
+	userdb_dst=${wiki}/privowixian-html/minister_of_internet_truth/geezers-and-other-users.udb
+	htaccess_src=${wiki}/privowixian/minister_of_internet_truth/htaccess.txt
+	userlist_src=${wiki}/privowixian/minister_of_internet_truth/all-users.txt
+	htaccess_dst=${wiki}/privowixian-html/.htaccess
+
+	cmp -s ${userdb_src} ${userdb_dst} || \
+		cp ${userdb_src} ${userdb_dst}
+
+	# XXX do this only when either src file has been updated
+	( cat ${htaccess_src}; while read user; do echo -n " $user"; done \
+		< ${userlist_src} ) \
+		> ${htaccess_dst}
+
+	rsync -qa --delete \
+		${wiki}/privowixian-html/ \
+		cunix.cc.columbia.edu:/wwws/data/cu/philo/
+}
+
+usage() {
+	echo >&2 "$0 <philo|privo>wixian"
+}
+
+case $1 in
+	philo*)		upload_philowixian	;;
+	privo*)		upload_privowixian	;;
+	*)		usage			;;
+esac
