@@ -4,21 +4,23 @@ STARTTIME=`date`
 echo >&2 "Starting Philo software reinstall"
 echo >&2
 
-PKGSRCDIR=$HOME/philo/pkgsrc-current
-VINTAGE=`date '+%Y%m%d'`
-cd $PKGSRCDIR/bootstrap
-./bootstrap --unprivileged --sysconfdir $HOME/philo/etc --prefix $HOME/philo/.pkg-$VINTAGE
-./cleanup
-PATH=`echo $PATH | sed -e "s|/pkg/|/.pkg-$VINTAGE/|g"`
-cd $HOME/philo/etc
-sed -e "s|^\(_VINTAGE=.*\)[0-9]\{8,\}|\1$VINTAGE|" < mk.conf > mk.conf.new && mv mk.conf.new mk.conf
+_VINTAGE=`date '+%Y%m%d'`
+_PHILO=$HOME/philo
+PKGSRCDIR=${_PHILO}/pkgsrc-current
 
-PHILO_PACKAGES='shlock dtach nvi djbdns p5-Net-LibIDN m4 p5-Math-BigInt-GMP p5-libwww p5-Math-BigInt-Pari p5-Net-OpenID-Consumer ikiwiki p5-HTML-Tree p5-DB_File p5-URI-Find graphviz keychain libgcrypt mp3splt normalize pkg_rolling-replace mr'
+cd $PKGSRCDIR/bootstrap
+env SH=/bin/bash ./bootstrap --unprivileged --prefix=${_PHILO}/.pkg-${_VINTAGE} --pkgdbdir=${_PHILO}/.pkg-${_VINTAGE}/.pkgdb --varbase=${_PHILO}/var --sysconfdir=${_PHILO}/etc --prefer-pkgsrc=yes --abi=64
+./cleanup
+PATH=`echo $PATH | sed -e "s|/pkg/|/.pkg-${_VINTAGE}/|g"`
+cd ${_PHILO}/etc
+sed -e "s|^\(_VINTAGE=.*\)[0-9]\{8,\}|\1${_VINTAGE}|" < mk.conf > mk.conf.new && mv mk.conf.new mk.conf
+
+PHILO_PACKAGES='shlock tmux git vim nvi djbdns p5-Net-LibIDN p5-Math-BigInt-GMP p5-libwww p5-Math-BigInt-Pari p5-Net-OpenID-Consumer ikiwiki p5-HTML-Tree p5-DB_File p5-URI-Find graphviz keychain libgcrypt mp3splt normalize pkg_rolling-replace mr'
 for i in $PHILO_PACKAGES; do
-	cd $PKGSRCDIR/*/$i && bmake install clean
+	cd $PKGSRCDIR/*/$i && bmake package-install clean
 done
 
-cd $HOME/philo && rm pkg && ln -s .pkg-$VINTAGE pkg
+cd ${_PHILO} && rm pkg && ln -s .pkg-${_VINTAGE} pkg
 
 FINISHTIME=`date`
 echo >&2 "Completed Philo software reinstall!"
