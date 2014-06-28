@@ -1,15 +1,30 @@
 #!/bin/sh -e
 
-STARTTIME=`date`
-echo >&2 "Starting Philo software update"
-echo >&2
+philo_software_update_rolling() {
+	cd $HOME/philo/pkgsrc-current
+	git pull
+	pkg_rolling-replace -suv
+}
 
-cd $HOME/philo/pkgsrc-current
-git pull
-pkg_rolling-replace -suv
+philo_software_update_print_start() {
+	STARTTIME=`date`
+	echo >&2 "Starting Philo software update"
+	echo >&2
+}
 
-FINISHTIME=`date`
-echo >&2 "Completed Philo software update!"
-echo >&2 "Started:  $STARTTIME"
-echo >&2 "Finished: $FINISHTIME"
-echo >&2
+philo_software_update_print_finish() {
+	FINISHTIME=`date`
+	echo >&2 "Completed Philo software update!"
+	echo >&2 "Started:  $STARTTIME"
+	echo >&2 "Finished: $FINISHTIME"
+	echo >&2
+}
+
+main() {
+	philo_software_update_print_start
+	philo_software_update_rolling
+	philo_software_update_print_finish
+}
+
+main "$@"
+exit $?
