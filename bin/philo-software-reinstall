@@ -1,23 +1,41 @@
 #!/bin/sh -e
 
+# XXX with or without etc and var already in place
+# XXX without a pkg symlink, packages go to wrong place pkgsrc/packages
+# XXX can't yet build other packages simultaneously from another shell
+# XXX something pulls in tex and X stuff?
+
 _VINTAGE=`date '+%Y%m%d'`
 _PHILO=$HOME/philo
 PKGSRCDIR=${_PHILO}/pkgsrc-current
 
 philo_software_reinstall_bootstrap() {
 	cd $PKGSRCDIR/bootstrap
-	env SH=/bin/bash ./bootstrap --unprivileged --prefix=${_PHILO}/.pkg-${_VINTAGE} --pkgdbdir=${_PHILO}/.pkg-${_VINTAGE}/.pkgdb --varbase=${_PHILO}/var --sysconfdir=${_PHILO}/etc --prefer-pkgsrc=yes --abi=64
+	env SH=/bin/bash ./bootstrap				\
+		--unprivileged					\
+		--prefix ${_PHILO}/.pkg-${_VINTAGE}		\
+		--pkgdbdir ${_PHILO}/.pkg-${_VINTAGE}/.pkgdb	\
+		--varbase ${_PHILO}/var				\
+		--sysconfdir ${_PHILO}/etc			\
+		--prefer-pkgsrc yes				\
+		--abi 64
+#--mk-fragment ${_PHILO}/mk.conf
+#--gzip-binary-kit XXX
 	./cleanup
 }
 
 philo_software_reinstall_build() {
 	PATH=`echo $PATH | sed -e "s|/pkg/|/.pkg-${_VINTAGE}/|g"`
 	cd ${_PHILO}/etc
-	sed -e "s|^\(_VINTAGE=.*\)[0-9]\{8,\}|\1${_VINTAGE}|" < mk.conf > mk.conf.new && mv mk.conf.new mk.conf
+	# nope it's a readlink now
+	sed -e "s|^\(_VINTAGE=.*\)[0-9]\{8,\}|\1${_VINTAGE}|"	\
+		< mk.conf > mk.conf.new				\
+		&& mv mk.conf.new mk.conf
 
-	PHILO_PACKAGES='shlock tmux git vim nvi djbdns p5-Net-LibIDN p5-Math-BigInt-GMP p5-libwww p5-Math-BigInt-Pari p5-Net-OpenID-Consumer ikiwiki p5-HTML-Tree p5-DB_File p5-URI-Find graphviz keychain libgcrypt mp3splt normalize pkg_rolling-replace mr'
+	PHILO_PACKAGES='checkperms shlock tmux git-base git-docs vim nvi djbdns p5-Net-LibIDN p5-Math-BigInt-GMP p5-libwww p5-Math-BigInt-Pari p5-Net-OpenID-Consumer ikiwiki p5-HTML-Tree p5-DB_File p5-URI-Find graphviz keychain libgcrypt mp3splt normalize pkg_rolling-replace mr'
 	for i in $PHILO_PACKAGES; do
-		cd $PKGSRCDIR/*/$i && bmake package-install clean
+		cd $PKGSRCDIR/*/$i
+		bmake package-install clean || echo >&2 "XXX Philo: $i"
 	done
 }
 
