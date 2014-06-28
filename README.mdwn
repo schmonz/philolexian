@@ -1,6 +1,13 @@
-Scripts and tools for maintenance of the Philolexian Society web site.
+# Philolexian Society backend web stuff
 
-# Assumptions
+This is a repository of tools and configuration needed for regular
+operation and maintenance of the [Philolexian
+Society](http://www.philo.org/)'s web sites, such as:
+
+* "Philowixian" (the main public-facing wiki)
+* "Privowixian" (the private members-only wiki)
+
+## Assumptions
 
 7. Everything is under `$HOME/philo`.
 7. `$HOME` is currently `/home/schmonz`.
