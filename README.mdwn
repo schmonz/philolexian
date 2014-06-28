@@ -1,6 +1,6 @@
 Scripts and tools for maintenance of the Philolexian Society web site.
 
-Assumptions:
+# Assumptions
 
-* `$HOME` is `/home/schmonz`
-* everything Philo-specific is under `$HOME/philo`
+7. Everything is under `$HOME/philo`.
+7. `$HOME` is currently `/home/schmonz`.
