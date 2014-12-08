@@ -32,7 +32,7 @@ philo_software_reinstall_build() {
 		< mk.conf > mk.conf.new				\
 		&& mv mk.conf.new mk.conf
 
-	PHILO_PACKAGES='checkperms shlock tmux git-base git-docs vim nvi djbdns p5-Net-LibIDN p5-Math-BigInt-GMP p5-libwww p5-Math-BigInt-Pari p5-Net-OpenID-Consumer ikiwiki p5-HTML-Tree p5-DB_File p5-URI-Find graphviz keychain libgcrypt mp3splt normalize pkg_rolling-replace mr'
+	PHILO_PACKAGES='checkperms shlock tmux ikiwiki p5-Text-Markdown graphviz keychain mp3splt normalize'
 	for i in $PHILO_PACKAGES; do
 		cd $PKGSRCDIR/*/$i
 		bmake package-install clean || echo >&2 "XXX Philo: $i"
