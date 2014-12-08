@@ -8,6 +8,9 @@
 # for ssh logins, install and configure the libpam-umask package.
 #umask 022
 
+umask 002
+PS1='[\h]$ '
+
 # if running bash
 if [ -n "$BASH_VERSION" ]; then
     # include .bashrc if it exists
@@ -20,3 +23,21 @@ fi
 if [ -d "$HOME/bin" ] ; then
     PATH="$HOME/bin:$PATH"
 fi
+
+_pkgbits="$HOME/philo/pkg"
+_localbits="$HOME/local"
+PATH="${_localbits}/sbin:${_localbits}/bin:${_pkgbits}/sbin:${_pkgbits}/bin:$PATH"
+
+keychain --quiet ~/.ssh/id_rsa
+. $HOME/.keychain/`hostname`-sh 2>/dev/null
+
+make()
+{
+	local _MK
+	_MK=mk/bsd.pkg.mk
+	if [ -f ../../$_MK -o -f ../$_MK -o -f $_MK ]; then
+		bmake "$@"
+	else
+		/usr/bin/make "$@"
+	fi
+}
