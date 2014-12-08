@@ -10,4 +10,4 @@ Society](http://www.philo.org/)'s web sites, such as:
 ## Assumptions
 
 7. Everything is under `$HOME/philo`.
-7. `$HOME` is currently `/home/schmonz`.
+7. `$HOME` used to be `/home/schmonz` and is now `/home/philolex`.
