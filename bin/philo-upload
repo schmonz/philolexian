@@ -17,7 +17,7 @@ upload_philowixian() {
 	check_key
 
 	wiki=~/philo
-	gitweb_src=${wiki}/pkg/share/gitweb/gitweb.cgi
+	gitweb_src=${wiki}/pkg/libexec/cgi-bin/gitweb.cgi
 	gitweb_dst=~/wiki.philo.org/public/gitweb.cgi
 
 	cmp -s ${gitweb_src} ${gitweb_dst} || \
